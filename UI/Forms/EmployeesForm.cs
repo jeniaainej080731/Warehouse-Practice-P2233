@@ -7,16 +7,19 @@ namespace Warehouse.UI.Forms
     public partial class EmployeesForm : Form
     {
         private readonly IEmployeeService _employeeService;
+        private readonly ILoginRoleService loginRoleService;
+
         private List<EmployeeDto> _employees;
         private List<EmployeeDto> _filteredEmployees;
         private bool isLoaded = false;
         private bool isAdmin;
 
-        public EmployeesForm(bool isAdmin, IEmployeeService employeeService)
+        public EmployeesForm(bool isAdmin, IEmployeeService employeeService, ILoginRoleService loginRoleService)
         {
             InitializeComponent();
             this.isAdmin = isAdmin;
             this._employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            this.loginRoleService = loginRoleService ?? throw new ArgumentNullException(nameof(loginRoleService));
 
         }
 
@@ -177,7 +180,7 @@ namespace Warehouse.UI.Forms
 
         private async void AddBtn_Click(object sender, EventArgs e)
         {
-            var addForm = new AddEmployeeForm(_employeeService);
+            var addForm = new AddEmployeeForm(_employeeService, loginRoleService);
             addForm.ShowDialog();
             _employees = (await _employeeService.GetAllAsync()).ToList();
             _filteredEmployees = new List<EmployeeDto>(_employees);

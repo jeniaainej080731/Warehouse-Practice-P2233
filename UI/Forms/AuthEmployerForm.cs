@@ -9,38 +9,28 @@ namespace Warehouse.UI.Forms
     public partial class AuthEmployerForm : Form
     {
         private readonly ILoginRoleService _loginRoleService;
-        private readonly IEmployeeService _employeeService;
 
-        public AuthEmployerForm(
-            ILoginRoleService loginRoleService,
-            IEmployeeService employeeService)
+        public int CreatedLoginId { get; private set; }
+
+        public AuthEmployerForm(/*int employeeId,*/
+            ILoginRoleService loginRoleService
+            /*IEmployeeService employeeService*/)
         {
             InitializeComponent();
             _loginRoleService = loginRoleService ?? throw new ArgumentNullException(nameof(loginRoleService));
-            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+
+            this.FormClosed += (s, e) => CancelBtn_Click(s, e);
         }
 
         private async void AuthEmployerForm_Load(object sender, EventArgs e)
         {
             try
             {
-                // Предполагаем, что GetAllAsync возвращает IEnumerable<EmployeeDto>
-                var employees = await _employeeService.GetAllAsync();
-                EmployeesCb.Items.Clear();
-                foreach (var emp in employees)
-                {
-                    // Отображаем в списке имя, но храним сам DTO в Item
-                    EmployeesCb.Items.Add(emp);
-                }
-
                 string[] roles = ["Admin", "User"];
                 foreach (var role in roles)
                 {
                     RoleCb.Items.Add(role);
                 }
-
-                EmployeesCb.DisplayMember = nameof(EmployeeDto.FullName);
-                EmployeesCb.ValueMember = nameof(EmployeeDto.LoginId);
             }
             catch (Exception ex)
             {
@@ -56,43 +46,41 @@ namespace Warehouse.UI.Forms
         {
             try
             {
-                if (EmployeesCb.SelectedItem is not EmployeeDto selectedEmployee)
-                {
-                    MessageBox.Show(
-                        "Пожалуйста, выберите сотрудника.",
-                        "Ошибка",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-                    return;
-                }
-
+                if (string.IsNullOrWhiteSpace(LoginTxt.Text))
+                    throw new ArgumentException("Login is required");
+                if (string.IsNullOrWhiteSpace(PasswordTxt.Text))
+                    throw new ArgumentException("Password is required");
                 if (RoleCb.SelectedItem == null)
-                {
-                    MessageBox.Show("Пожалуйста, выберите роль.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    throw new ArgumentException("Role is required");
 
                 var loginRoleDto = new LoginRoleDto
                 {
-                    LoginId = selectedEmployee.LoginId,
-                    Role = RoleCb.SelectedItem.ToString().Trim()
+                    Login = LoginTxt.Text,
+                    Password = PasswordTxt.Text,
+                    Role = RoleCb.SelectedItem.ToString()
                 };
 
-                await _loginRoleService.AddAsync(loginRoleDto);
-
-                MessageBox.Show(
-                    "Роль успешно сохранена.",
-                    "Успех",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                CreatedLoginId = await _loginRoleService.AddAsync(loginRoleDto);
+                DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Ошибка при сохранении роли: {ex.Message}",
-                    "Ошибка",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Error saving credentials: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void CancelBtn_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show(
+                "Are you sure you want to cancel?",
+                "Confirm Cancel",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                Close();
             }
         }
     }

@@ -61,7 +61,10 @@ namespace Warehouse
 
             // DTO -> Class
             CreateMap<ProductDto, Product>();
-            CreateMap<EmployeeDto, Employee>();
+            CreateMap<EmployeeDto, Employee>()
+                .ForMember(dest => dest.EmployeeId, opt => opt.Ignore())  // Игнорируем PK для новых записей
+                .ForMember(dest => dest.LoginId, opt => opt.MapFrom(src => src.LoginId))  // Маппим внешний ключ
+                .ForMember(dest => dest.LoginRole, opt => opt.Ignore());  // Игнорируем навигацию!
             CreateMap<LoginRoleDto, LoginRole>();
             CreateMap<CategoryDto, Category>();
             CreateMap<AuditDto, Audit>();

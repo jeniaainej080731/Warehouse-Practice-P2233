@@ -66,7 +66,7 @@ namespace Warehouse.UI
 
         private void EmployeesBtn_Click(object sender, EventArgs e)
         {
-            EmployeesForm employeesForm = new EmployeesForm(isAdmin, employeeService);
+            EmployeesForm employeesForm = new EmployeesForm(isAdmin, employeeService, loginRoleService);
             employeesForm.Show();
         }
 
@@ -92,7 +92,7 @@ namespace Warehouse.UI
 
         private void helpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string url = "https://ru.wikipedia.org/wiki/"; // my GitHub page
+            string url = "https://github.com/jeniaainej080731/Warehouse-Practice-P2233/tree/master"; // my GitHub page
             try
             {
                 Process.Start(new ProcessStartInfo
@@ -109,20 +109,12 @@ namespace Warehouse.UI
 
         private void authEmployerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AuthEmployerForm authEmployerForm = new AuthEmployerForm(loginRoleService, employeeService);
-            authEmployerForm.ShowDialog();
+ 
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            if (isAdmin)
-            {
-                authEmployerToolStripMenuItem.Visible = true;
-            }
-            else
-            {
-                authEmployerToolStripMenuItem.Visible = false;
-            }
+
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Warehouse.Data.Entities
 
         [Required]
         [Column("login_id")]
-        public int Login_Id { get; set; }
+        public int LoginId { get; set; }
 
         [Required, EmailAddress(ErrorMessage = "Incorrect email address")]
         [Column("email", TypeName = "nvarchar(200)")]
@@ -31,7 +31,7 @@ namespace Warehouse.Data.Entities
         [Column("photo_path")]
         public string PhotoPath { get; set; }
 
-        [ForeignKey("Login_id")]
+        [ForeignKey("LoginId")]
         public virtual LoginRole LoginRole { get; set; }
 
         public ICollection<Receipt> Receipts { get; set; }

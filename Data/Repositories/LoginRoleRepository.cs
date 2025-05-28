@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Ninject.Activation;
 using Warehouse.Data.Databases.Repositories.Context;
 using Warehouse.Data.DTO;
 using Warehouse.Data.Entities;
@@ -98,7 +99,13 @@ namespace Warehouse.Data.Repositories
             if (employee == null)
                 return null;
 
-            return await _ctx.LoginRoles.FirstOrDefaultAsync(lr => lr.LoginId == employee.Login_Id);
+            return await _ctx.LoginRoles.FirstOrDefaultAsync(lr => lr.LoginId == employee.LoginId);
+        }
+
+        public async Task<bool> LoginExistsAsync(string login)
+        {
+            return await _ctx.LoginRoles
+                .AnyAsync(lr => lr.Login == login);
         }
     }
 }

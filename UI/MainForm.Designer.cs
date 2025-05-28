@@ -54,7 +54,6 @@
             fileToolStripMenuItem = new ToolStripMenuItem();
             backupsToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
-            authEmployerToolStripMenuItem = new ToolStripMenuItem();
             MainPanel.SuspendLayout();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -215,7 +214,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, helpToolStripMenuItem, authEmployerToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, helpToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1258, 28);
@@ -232,7 +231,7 @@
             // backupsToolStripMenuItem
             // 
             backupsToolStripMenuItem.Name = "backupsToolStripMenuItem";
-            backupsToolStripMenuItem.Size = new Size(146, 26);
+            backupsToolStripMenuItem.Size = new Size(224, 26);
             backupsToolStripMenuItem.Text = "Backups";
             backupsToolStripMenuItem.Click += backupsToolStripMenuItem_Click;
             // 
@@ -242,13 +241,6 @@
             helpToolStripMenuItem.Size = new Size(55, 24);
             helpToolStripMenuItem.Text = "Help";
             helpToolStripMenuItem.Click += helpToolStripMenuItem_Click;
-            // 
-            // authEmployerToolStripMenuItem
-            // 
-            authEmployerToolStripMenuItem.Name = "authEmployerToolStripMenuItem";
-            authEmployerToolStripMenuItem.Size = new Size(121, 24);
-            authEmployerToolStripMenuItem.Text = "Auth Employer";
-            authEmployerToolStripMenuItem.Click += authEmployerToolStripMenuItem_Click;
             // 
             // MainForm
             // 
@@ -284,6 +276,5 @@
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem backupsToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
-        private ToolStripMenuItem authEmployerToolStripMenuItem;
     }
 }

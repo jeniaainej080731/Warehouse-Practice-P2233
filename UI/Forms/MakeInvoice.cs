@@ -17,7 +17,7 @@ namespace Warehouse.UI.Forms
         private ProductDto selectedProduct;
         private int selectedSupplier;
 
-        private readonly string qrUrl = "https://github.com/jeniaainej080731";
+        private readonly string qrUrl = "https://github.com/jeniaainej080731/Warehouse-Practice-P2233/tree/master";
 
         public MakeInvoice(int employeeId,
             IEmployeeService employeeService, IProductService productService, IReceiptService receiptService,

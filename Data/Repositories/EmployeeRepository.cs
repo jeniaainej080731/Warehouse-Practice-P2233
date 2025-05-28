@@ -53,7 +53,7 @@ namespace Warehouse.Data.Repositories
 
             return employees
                 .Join(roles,
-                      e => e.Login_Id,
+                      e => e.LoginId,
                       r => r.LoginId,
                       (e, r) => new EmployeeDto
                       {
@@ -74,7 +74,7 @@ namespace Warehouse.Data.Repositories
             if (e == null) return null;
 
             var r = await _auth.LoginRoles
-                               .FirstOrDefaultAsync(lr => lr.LoginId == e.Login_Id);
+                               .FirstOrDefaultAsync(lr => lr.LoginId == e.LoginId);
 
             return new EmployeeDto
             {

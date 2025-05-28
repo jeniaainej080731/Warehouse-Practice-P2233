@@ -33,7 +33,7 @@ namespace Warehouse.Data.Databases.Repositories.Context
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.LoginRole)
                 .WithMany(lr => lr.Employees)
-                .HasForeignKey(e => e.Login_Id);
+                .HasForeignKey(e => e.LoginId);
 
         }
     }

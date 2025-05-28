@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using Warehouse.Data.DTO;
+using Warehouse.Services.Implementations;
 using Warehouse.Services.Interfaces;
 
 namespace Warehouse.UI.Forms
@@ -7,11 +8,13 @@ namespace Warehouse.UI.Forms
     public partial class AddEmployeeForm : Form
     {
         private readonly IEmployeeService _employeeService;
+        private readonly ILoginRoleService _loginRoleService;
 
-        public AddEmployeeForm(IEmployeeService employeeService)
+        public AddEmployeeForm(IEmployeeService employeeService, ILoginRoleService loginRoleService)
         {
             InitializeComponent();
             _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            _loginRoleService = loginRoleService ?? throw new ArgumentNullException(nameof(loginRoleService));
         }
 
         private void CancelBtn_Click(object sender, EventArgs e)
@@ -29,6 +32,12 @@ namespace Warehouse.UI.Forms
         {
             try
             {
+                using var authForm = new AuthEmployerForm(_loginRoleService);
+                if (authForm.ShowDialog() != DialogResult.OK)
+                {
+                    return; // Пользователь отменил создание
+                }
+
                 string fullName = NameTxt.Text.Trim();
                 string email = EmailTxt.Text.Trim();
                 string phone = PhoneTxt.Text.Trim();
@@ -74,8 +83,9 @@ namespace Warehouse.UI.Forms
                 {
                     FullName = fullName,
                     Email = email,
-                    PhoneNumber = phoneClean,
-                    PhotoPath = photoPath
+                    PhoneNumber = Regex.Replace(phone, "\\D", ""),
+                    PhotoPath = photoPath,
+                    LoginId = authForm.CreatedLoginId // Используем ID из формы аутентификации
                 };
 
                 await _employeeService.AddAsync(newEmployee);

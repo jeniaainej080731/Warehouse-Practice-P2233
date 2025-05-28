@@ -29,26 +29,17 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AuthEmployerForm));
-            EmployeesCb = new ComboBox();
             label1 = new Label();
             LoginTxt = new TextBox();
             label2 = new Label();
             label3 = new Label();
-            Password = new TextBox();
+            PasswordTxt = new TextBox();
             SaveBtn = new Button();
             CancelBtn = new Button();
             RoleCb = new ComboBox();
             label4 = new Label();
+            EmployerTxt = new TextBox();
             SuspendLayout();
-            // 
-            // EmployeesCb
-            // 
-            EmployeesCb.Font = new Font("Segoe UI", 10.8F);
-            EmployeesCb.FormattingEnabled = true;
-            EmployeesCb.Location = new Point(30, 65);
-            EmployeesCb.Name = "EmployeesCb";
-            EmployeesCb.Size = new Size(193, 33);
-            EmployeesCb.TabIndex = 0;
             // 
             // label1
             // 
@@ -88,13 +79,13 @@
             label3.TabIndex = 1;
             label3.Text = "Password";
             // 
-            // Password
+            // PasswordTxt
             // 
-            Password.Font = new Font("Segoe UI", 10.8F);
-            Password.Location = new Point(30, 284);
-            Password.Name = "Password";
-            Password.Size = new Size(193, 31);
-            Password.TabIndex = 2;
+            PasswordTxt.Font = new Font("Segoe UI", 10.8F);
+            PasswordTxt.Location = new Point(30, 284);
+            PasswordTxt.Name = "PasswordTxt";
+            PasswordTxt.Size = new Size(193, 31);
+            PasswordTxt.TabIndex = 2;
             // 
             // SaveBtn
             // 
@@ -119,6 +110,7 @@
             CancelBtn.TabIndex = 3;
             CancelBtn.Text = "Cancel";
             CancelBtn.UseVisualStyleBackColor = false;
+            CancelBtn.Click += CancelBtn_Click;
             // 
             // RoleCb
             // 
@@ -139,6 +131,14 @@
             label4.TabIndex = 1;
             label4.Text = "Role";
             // 
+            // EmployerTxt
+            // 
+            EmployerTxt.Font = new Font("Segoe UI", 10.8F);
+            EmployerTxt.Location = new Point(27, 65);
+            EmployerTxt.Name = "EmployerTxt";
+            EmployerTxt.Size = new Size(193, 31);
+            EmployerTxt.TabIndex = 2;
+            // 
             // AuthEmployerForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -147,14 +147,14 @@
             ClientSize = new Size(266, 386);
             Controls.Add(CancelBtn);
             Controls.Add(SaveBtn);
-            Controls.Add(Password);
+            Controls.Add(PasswordTxt);
+            Controls.Add(EmployerTxt);
             Controls.Add(LoginTxt);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label4);
             Controls.Add(RoleCb);
             Controls.Add(label1);
-            Controls.Add(EmployeesCb);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
@@ -167,16 +167,15 @@
         }
 
         #endregion
-
-        private ComboBox EmployeesCb;
         private Label label1;
         private TextBox LoginTxt;
         private Label label2;
         private Label label3;
-        private TextBox Password;
+        private TextBox PasswordTxt;
         private Button SaveBtn;
         private Button CancelBtn;
         private ComboBox RoleCb;
         private Label label4;
+        private TextBox EmployerTxt;
     }
 }

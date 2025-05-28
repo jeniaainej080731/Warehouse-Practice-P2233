@@ -12,5 +12,7 @@ namespace Warehouse.Data.Interfaces
         Task DeleteAsync(int id);
         Task<LoginRole> GetByCredentialsAsync(string login, string password);
         Task<LoginRole> GetByEmployeeIdAsync(int employeeId);
+        Task AddAsync(LoginRole entity);
+        Task<bool> LoginExistsAsync(string login);
     }
 }

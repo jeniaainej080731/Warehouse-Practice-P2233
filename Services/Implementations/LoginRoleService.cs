@@ -1,4 +1,6 @@
-﻿using Warehouse.Data.DTO;
+﻿using AutoMapper;
+using Warehouse.Data.DTO;
+using Warehouse.Data.Entities;
 using Warehouse.Data.Interfaces;
 using Warehouse.Services.Interfaces;
 
@@ -7,10 +9,12 @@ namespace Warehouse.Services.Implementations
     public class LoginRoleService : ILoginRoleService
     {
         private readonly ILoginRoleRepository repository;
+        private readonly IMapper mapper;
 
-        public LoginRoleService(ILoginRoleRepository repository)
+        public LoginRoleService(ILoginRoleRepository repository, IMapper mapper)
         {
             this.repository = repository;
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<LoginRoleDto>> GetAllAsync()
@@ -23,11 +27,21 @@ namespace Warehouse.Services.Implementations
             return await repository.GetByIdAsync(id);
         }
 
-        public async Task AddAsync(LoginRoleDto loginRoleDto)
+        public async Task<int> AddAsync(LoginRoleDto loginRoleDto)
         {
             if (loginRoleDto == null)
                 throw new ArgumentNullException(nameof(loginRoleDto));
-            await repository.AddAsync(loginRoleDto);
+
+            // Проверка существования логина
+            bool loginExists = await repository.LoginExistsAsync(loginRoleDto.Login);
+            if (loginExists)
+            {
+                throw new InvalidOperationException($"Login '{loginRoleDto.Login}' already exists");
+            }
+
+            var entity = mapper.Map<LoginRole>(loginRoleDto);
+            await repository.AddAsync(entity);
+            return entity.LoginId;
         }
 
         public async Task<LoginRoleDto> GetByCredentials(string userLogin, string userPassword)
@@ -36,19 +50,13 @@ namespace Warehouse.Services.Implementations
             if (entity == null)
                 throw new UnauthorizedAccessException("Invalid login or password.");
 
-            return new LoginRoleDto
-            {
-                LoginId = entity.LoginId,
-                Login = entity.Login,
-                Password = entity.Password,
-                Role = entity.Role
-            };
+            return mapper.Map<LoginRoleDto>(entity);
         }
 
         public async Task<bool> IsAdmin(int employeeId)
         {
             var loginRole = await repository.GetByEmployeeIdAsync(employeeId);
-            return loginRole != null && loginRole.Role.ToLower().Equals("admin");
+            return loginRole != null && loginRole.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
