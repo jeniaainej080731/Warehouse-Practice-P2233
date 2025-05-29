@@ -1,5 +1,4 @@
-﻿using Warehouse.Data.DTO;
-using Warehouse.Data.Entities;
+﻿using Warehouse.Data.Entities;
 
 namespace Warehouse.Data.Interfaces
 {

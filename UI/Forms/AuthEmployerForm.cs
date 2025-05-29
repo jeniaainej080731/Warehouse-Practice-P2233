@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Forms;
-using Warehouse.Data.DTO;
+﻿using Warehouse.Data.DTO;
 using Warehouse.Services.Interfaces;
 
 namespace Warehouse.UI.Forms

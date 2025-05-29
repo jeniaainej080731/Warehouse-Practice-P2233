@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
 using Warehouse.Data.DTO;
-using Warehouse.Services.Implementations;
 using Warehouse.Services.Interfaces;
 
 namespace Warehouse.UI.Forms

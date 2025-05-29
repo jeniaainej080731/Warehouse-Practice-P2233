@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Ninject.Activation;
 using Warehouse.Data.Databases.Repositories.Context;
 using Warehouse.Data.DTO;
 using Warehouse.Data.Entities;
