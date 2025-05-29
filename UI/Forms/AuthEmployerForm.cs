@@ -9,15 +9,19 @@ namespace Warehouse.UI.Forms
     public partial class AuthEmployerForm : Form
     {
         private readonly ILoginRoleService _loginRoleService;
+        private readonly IEmployeeService _employeeService;
+        private readonly string _name;
 
         public int CreatedLoginId { get; private set; }
 
-        public AuthEmployerForm(/*int employeeId,*/
-            ILoginRoleService loginRoleService
-            /*IEmployeeService employeeService*/)
+        public AuthEmployerForm(string name,
+            ILoginRoleService loginRoleService,
+            IEmployeeService employeeService)
         {
             InitializeComponent();
             _loginRoleService = loginRoleService ?? throw new ArgumentNullException(nameof(loginRoleService));
+            _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
+            _name = name;
 
             this.FormClosed += (s, e) => CancelBtn_Click(s, e);
         }
@@ -26,6 +30,7 @@ namespace Warehouse.UI.Forms
         {
             try
             {
+                EmployerTxt.Text = _name;
                 string[] roles = ["Admin", "User"];
                 foreach (var role in roles)
                 {

@@ -54,7 +54,8 @@ namespace Warehouse.UI
 
         private void AuditsBtn_Click(object sender, EventArgs e)
         {
-            AuditsForm auditsForm = new AuditsForm(employeeId, operationService, auditService);
+            //AuditsForm auditsForm = new AuditsForm(employeeId, operationService, auditService);
+            AuditsForm auditsForm = new AuditsForm(employeeId, operationService, auditService, productService);
             auditsForm.Show();
         }
 

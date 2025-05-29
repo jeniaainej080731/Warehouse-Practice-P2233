@@ -96,7 +96,6 @@
             QuantityNud.ReadOnly = true;
             QuantityNud.Size = new Size(194, 31);
             QuantityNud.TabIndex = 5;
-            QuantityNud.ValueChanged += QuantityNud_ValueChanged;
             // 
             // label4
             // 

@@ -1,4 +1,5 @@
-﻿using Warehouse.Data.DTO;
+﻿using AutoMapper;
+using Warehouse.Data.DTO;
 using Warehouse.Data.Entities;
 
 namespace Warehouse.Data.Interfaces
@@ -11,5 +12,6 @@ namespace Warehouse.Data.Interfaces
         Task<Employee> GetByIdWithInvoicesAndOperationsAsync(int id);
         Task<IEnumerable<EmployeeDto>> GetAllWithRolesAsync();
         Task<EmployeeDto> GetByIdWithRoleAsync(int id);
+        Task<Employee> GetByIdEntityAsync(int id);
     }
 }

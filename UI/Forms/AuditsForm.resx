@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="ExitFormBtn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnExit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAA5JJREFUSEu1
         1F1MU2ccx/HHi2FiNmPczRQILxbKS6FVGDJchlCEKKW8NoCmYCuriqBCCc14aUsLIuImxpkwNduMJkZD
@@ -139,7 +139,7 @@
         WP7alenY30m9AJDhV+vNAAAAAElFTkSuQmCC
 </value>
   </data>
-  <data name="LeftSideCollapse.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnToggleSidePanel.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
         DAAACwwBP0AiyAAAEWVJREFUeF7t3XGsZPVVwHF2gQVtqIKKCBUUtU0lhGRbDATMJrqbvPTtm3v3vt4S
@@ -219,7 +219,7 @@
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAINFpp/0/vPP9X9YoOcIAAAAASUVORK5CYII=
 </value>
   </data>
-  <data name="MakeReportBtn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMakeReport.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAABOZJREFUSEud
         1WtMU2cYB/B6gbUUBNmYCs7NK15hupEZVOaMkww3nXFcNjXzug/OTaKCDgSpUWAoEcGJxbVzKjAG0V6s
@@ -246,7 +246,7 @@
         RU5ErkJggg==
 </value>
   </data>
-  <data name="MakeAuditBtn.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+  <data name="btnMakeAudit.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAA1lJREFUSEud
         lk1PE1EUhue3tD+hCJQOtNTSQltEWj7UQI1fiIlK3aikibgAV7rWhf6CbowfiVFmoTExsjEglLa0UxBi
@@ -266,6 +266,12 @@
         uh55Dvi3JS79BrlcfonRZFkIAAAAAElFTkSuQmCC
 </value>
   </data>
+  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="statusStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAAAAAAAEAIAD8IgAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAEAAAABAAgGAAAAXHKoZgAAAAlw

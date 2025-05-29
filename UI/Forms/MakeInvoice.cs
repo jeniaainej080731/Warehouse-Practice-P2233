@@ -97,61 +97,6 @@ namespace Warehouse.UI.Forms
             }
         }
 
-        private async void QuantityNud_ValueChanged(object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    int quantity = (int)QuantityNud.Value;
-            //    if (selectedProduct != null)
-            //    {
-            //        await CheckQuantityInBase(selectedProduct);
-            //        PriceTxt.Text = $"{selectedProduct.ProductPrice * quantity:C}";
-            //    }
-            //    else
-            //    {
-            //        PriceTxt.Text = "0.00";
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Error calculating price: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
-        }
-
-        private async Task CheckQuantityInBase(ProductDto product)
-        {
-            try
-            {
-                if (product == null)
-                {
-                    MessageBox.Show("Выберите товар для проверки количества.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (product != null)
-                {
-                    int availableQuantity = product.ProductQuantity;
-                    if (availableQuantity <= 0)
-                    {
-                        MessageBox.Show("Товар отсутствует на складе.", "Недостаточно товара", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        QuantityNud.Value = 0;
-                    }
-                    else
-                    {
-                        QuantityNud.Maximum = availableQuantity;
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Не удалось получить информацию о товаре.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка при проверке количества товара: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private async void MakeBtn_Click(object sender, EventArgs e)
         {
             try
@@ -181,7 +126,7 @@ namespace Warehouse.UI.Forms
                 var total = selectedProduct.ProductPrice * quantity;
                 var receiptDto = new ReceiptDto
                 {
-                    CustomerName = CustomerCb.ToString().Trim(),
+                    CustomerName = CustomerCb.SelectedItem.ToString().Trim(),
                     ReceiptDate = DateTime.Now,
                     EmployeeId = employeeId,
                     EmployeeName = EmployerTxt.Text,

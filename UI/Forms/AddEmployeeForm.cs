@@ -15,6 +15,8 @@ namespace Warehouse.UI.Forms
             InitializeComponent();
             _employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
             _loginRoleService = loginRoleService ?? throw new ArgumentNullException(nameof(loginRoleService));
+
+            this.FormClosed += (s, e) => CancelBtn_Click(s, e);
         }
 
         private void CancelBtn_Click(object sender, EventArgs e)
@@ -32,13 +34,14 @@ namespace Warehouse.UI.Forms
         {
             try
             {
-                using var authForm = new AuthEmployerForm(_loginRoleService);
+                string fullName = NameTxt.Text.Trim();
+
+                using var authForm = new AuthEmployerForm(fullName, _loginRoleService, _employeeService);
                 if (authForm.ShowDialog() != DialogResult.OK)
                 {
                     return; // Пользователь отменил создание
                 }
 
-                string fullName = NameTxt.Text.Trim();
                 string email = EmailTxt.Text.Trim();
                 string phone = PhoneTxt.Text.Trim();
                 string? photoPath = string.IsNullOrWhiteSpace(photoPathLbl.Text)

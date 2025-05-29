@@ -56,7 +56,7 @@
             DeleteBtn.BackColor = Color.FromArgb(192, 0, 0);
             DeleteBtn.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
             DeleteBtn.ForeColor = Color.White;
-            DeleteBtn.Location = new Point(123, 527);
+            DeleteBtn.Location = new Point(35, 526);
             DeleteBtn.Name = "DeleteBtn";
             DeleteBtn.Size = new Size(94, 40);
             DeleteBtn.TabIndex = 2;
@@ -68,12 +68,13 @@
             // 
             EditBtn.BackColor = Color.Cyan;
             EditBtn.Font = new Font("Segoe UI Semibold", 10F, FontStyle.Bold);
-            EditBtn.Location = new Point(23, 527);
+            EditBtn.Location = new Point(251, 527);
             EditBtn.Name = "EditBtn";
             EditBtn.Size = new Size(94, 40);
             EditBtn.TabIndex = 2;
             EditBtn.Text = "Edit";
             EditBtn.UseVisualStyleBackColor = false;
+            EditBtn.Visible = false;
             EditBtn.Click += EditBtn_Click;
             // 
             // InfoTxt

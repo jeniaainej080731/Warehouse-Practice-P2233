@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -12,212 +13,338 @@ namespace Warehouse.UI.Forms
 {
     public partial class AuditsForm : Form
     {
-        private readonly IOperationService _opService;
+        private readonly IOperationService _operationService;
         private readonly IAuditService _auditService;
+        private readonly IProductService _productService;
         private readonly int _employeeId;
-        private bool isCollapsed = false;
+        private bool _isSidePanelCollapsed = false;
 
-        // Источник для грида
-        private BindingList<InventoryRow> _rows;
+        private BindingList<InventoryRow> _inventoryRows;
+        private List<ProductDto> _allProducts;
 
         public AuditsForm(
             int employeeId,
-            IOperationService opService,
-            IAuditService auditService)
+            IOperationService operationService,
+            IAuditService auditService,
+            IProductService productService)
         {
             InitializeComponent();
 
             _employeeId = employeeId;
-            _opService = opService ?? throw new ArgumentNullException(nameof(opService));
+            _operationService = operationService ?? throw new ArgumentNullException(nameof(operationService));
             _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
 
-            // Настраиваем грид
             InitializeDataGrid();
-
-            // События
-            Load += AuditsForm_Load;
-            MakeAuditBtn.Click += MakeAuditBtn_Click;
-            MakeReportBtn.Click += MakeReportBtn_Click;
+            SetupEventHandlers();
         }
 
         private void InitializeDataGrid()
         {
-            var grid = AuditsDataGridView;
-            grid.AutoGenerateColumns = false;
-            grid.RowHeadersVisible = true;
-            grid.Columns.Clear();
+            AuditsDataGridView.AutoGenerateColumns = false;
+            AuditsDataGridView.RowHeadersVisible = true;
+            AuditsDataGridView.AllowUserToAddRows = false;
+            AuditsDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            AuditsDataGridView.Columns.Clear();
 
-            // Товар
-            grid.Columns.Add(new DataGridViewTextBoxColumn
+            AuditsDataGridView.RowPostPaint += (sender, e) =>
             {
-                HeaderText = "Product",
-                DataPropertyName = nameof(InventoryRow.ProductName),
-                ReadOnly = true,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-            // Ожидается
-            grid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                HeaderText = "Expected",
-                DataPropertyName = nameof(InventoryRow.Expected),
-                ReadOnly = true,
-                Width = 80
-            });
-            // Проверено (редактируемое)
-            grid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                HeaderText = "Checked",
-                DataPropertyName = nameof(InventoryRow.Checked),
-                ReadOnly = false,
-                Width = 80
-            });
-            // Разница
-            grid.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                HeaderText = "Diff",
-                DataPropertyName = nameof(InventoryRow.Diff),
-                ReadOnly = true,
-                Width = 80
-            });
-
-            // При изменении ячейки в столбце Checked пересчитываем Diff
-            grid.CellEndEdit += (s, e) =>
-            {
-                if (e.ColumnIndex == 2) // Checked column
+                var grid = (DataGridView)sender;
+                var rowIdx = (e.RowIndex + 1).ToString();
+                var centerFormat = new StringFormat
                 {
-                    var row = _rows[e.RowIndex];
-                    row.Diff = row.Expected - row.Checked;
-                    grid.Refresh();
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                var headerBounds = new Rectangle(
+                    e.RowBounds.Left,
+                    e.RowBounds.Top,
+                    grid.RowHeadersWidth,
+                    e.RowBounds.Height);
+                e.Graphics.DrawString(rowIdx, this.Font, SystemBrushes.ControlText, headerBounds, centerFormat);
+            };
+
+            var columns = new[]
+            {
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Product ID",
+                    DataPropertyName = nameof(InventoryRow.ProductId),
+                    ReadOnly = true,
+                    Visible = false,
+                    Width = 80
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Product Name",
+                    DataPropertyName = nameof(InventoryRow.ProductName),
+                    ReadOnly = true,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Expected Quantity",
+                    DataPropertyName = nameof(InventoryRow.ExpectedQuantity),
+                    ReadOnly = true,
+                    Width = 100,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" }
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Checked Quantity",
+                    DataPropertyName = nameof(InventoryRow.CheckedQuantity),
+                    ReadOnly = false,
+                    Width = 100,
+                    DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" }
+                },
+                new DataGridViewTextBoxColumn
+                {
+                    HeaderText = "Difference",
+                    DataPropertyName = nameof(InventoryRow.Difference),
+                    ReadOnly = true,
+                    Width = 100,
+                    DefaultCellStyle = new DataGridViewCellStyle
+                    {
+                        Format = "N0",
+                        ForeColor = Color.Black,
+                        BackColor = Color.LightGray
+                    }
+                }
+            };
+            foreach (var col in columns) AuditsDataGridView.Columns.Add(col);
+
+            AuditsDataGridView.CellFormatting += (sender, e) =>
+            {
+                if (e.ColumnIndex == 4 && e.RowIndex >= 0)
+                {
+                    var row = (InventoryRow)AuditsDataGridView.Rows[e.RowIndex].DataBoundItem;
+                    if (row.Difference < 0)
+                    {
+                        e.CellStyle.ForeColor = Color.Red;
+                        e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
+                    }
+                    else if (row.Difference > 0)
+                    {
+                        e.CellStyle.ForeColor = Color.Green;
+                        e.CellStyle.Font = new Font(e.CellStyle.Font, FontStyle.Bold);
+                    }
+                }
+            };
+
+            AuditsDataGridView.CellEndEdit += (sender, e) =>
+            {
+                if (e.ColumnIndex == 3)
+                {
+                    var row = (InventoryRow)AuditsDataGridView.Rows[e.RowIndex].DataBoundItem;
+                    row.RecalculateDifference();
+                    AuditsDataGridView.InvalidateRow(e.RowIndex);
                 }
             };
         }
 
-        private async void AuditsForm_Load(object sender, EventArgs e)
+        private void SetupEventHandlers()
         {
-            // 1. Загрузить все операции
-            var ops = (await _opService.GetAllWithDetailsAsync()).ToList();
-
-            // 2. Сгруппировать по продукту и посчитать Expected = sum(IN) - sum(OUT)
-            var list = ops
-                .GroupBy(o => new { o.ProductId, o.ProductName })
-                .Select(g => new InventoryRow
-                {
-                    ProductId = g.Key.ProductId,
-                    ProductName = g.Key.ProductName,
-                    Expected = g.Where(o => o.OperationType == "IN").Sum(o => o.QuantityInOperation)
-                                - g.Where(o => o.OperationType == "OUT").Sum(o => o.QuantityInOperation),
-                    Checked = 0,
-                    Diff = 0
-                })
-                .ToList();
-
-            // 3. Привязать к BindingList и отобразить
-            _rows = new BindingList<InventoryRow>(list);
-            AuditsDataGridView.DataSource = _rows;
+            Load += async (s, e) => await LoadInventoryDataAsync();
+            btnMakeAudit.Click += async (s, e) => await SaveAuditAsync();
+            btnMakeReport.Click += ShowAuditReport;
+            btnToggleSidePanel.Click += ToggleSidePanel;
+            btnExit.Click += (s, e) => Close();
+            txtSearch.TextChanged += FilterProducts;
         }
 
-        private async void MakeAuditBtn_Click(object sender, EventArgs e)
+        private async Task LoadInventoryDataAsync()
         {
-            int saved = 0;
-
-            foreach (var r in _rows)
+            try
             {
-                try
-                {
-                    var dto = new AuditDto
+                Cursor = Cursors.WaitCursor;
+                _allProducts = (await _productService.GetAllAsync()).ToList();
+                var operations = (await _operationService.GetAllWithDetailsAsync()).ToList();
+
+                var validIds = new HashSet<int>(_allProducts.Select(p => p.ProductId));
+                var opsFiltered = operations.Where(o => validIds.Contains(o.ProductId)).ToList();
+
+                var inventory = opsFiltered
+                    .GroupBy(o => new { o.ProductId, o.ProductName })
+                    .Select(g => new InventoryRow
                     {
-                        ProductId = r.ProductId,
-                        EmployeeId = _employeeId,
-                        CheckedQuantity = r.Checked,
-                        InventoryAuditComments = "",              // пустой комментарий
-                        AuditDate = DateTime.Now
-                    };
-                    await _auditService.AddAsync(dto);
-                    saved++;
-                }
-                catch
-                {
-                    // игнорируем ошибки по строкам
-                }
+                        ProductId = g.Key.ProductId,
+                        ProductName = g.Key.ProductName,
+                        ExpectedQuantity = g.Where(o => o.OperationType == "IN").Sum(o => o.QuantityInOperation)
+                                         - g.Where(o => o.OperationType == "OUT").Sum(o => o.QuantityInOperation),
+                        CheckedQuantity = 0
+                    })
+                    .ToList();
+
+                var withoutOps = _allProducts
+                    .Where(p => !inventory.Any(i => i.ProductId == p.ProductId))
+                    .Select(p => new InventoryRow
+                    {
+                        ProductId = p.ProductId,
+                        ProductName = p.ProductName,
+                        ExpectedQuantity = p.ProductQuantity,
+                        CheckedQuantity = 0
+                    });
+
+                inventory.AddRange(withoutOps);
+                _inventoryRows = new BindingList<InventoryRow>(inventory.OrderBy(x => x.ProductName).ToList());
+                AuditsDataGridView.DataSource = _inventoryRows;
+
+                lblStatus.Text = $"Loaded {_inventoryRows.Count} products for inventory";
+                statusStrip1.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading inventory: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private async Task SaveAuditAsync()
+        {
+            AuditsDataGridView.EndEdit();
+            AuditsDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+            if (_inventoryRows == null || _inventoryRows.Count == 0)
+            {
+                MessageBox.Show("No inventory data to save.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
-            MessageBox.Show($"{saved} из {_rows.Count} записей сохранены.",
-                "Инвентаризация", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void MakeReportBtn_Click(object sender, EventArgs e)
-        {
-            // Для «галочки» просто выводим сводку по Diff
-            int positive = _rows.Count(r => r.Diff >= 0);
-            int negative = _rows.Count(r => r.Diff < 0);
-
-            MessageBox.Show(
-                $"Проверено товаров: {_rows.Count}\n" +
-                $"В норме (>=0): {positive}\n" +
-                $"Недостачи (<0): {negative}",
-                "Отчёт инвентаризации",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
-        }
-
-        private void AuditsDataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
-        {
-            var grid = sender as DataGridView;
-            var rowIdx = (e.RowIndex + 1).ToString();
-
-            var centerFormat = new StringFormat()
+            try
             {
-                Alignment = StringAlignment.Center,
-                LineAlignment = StringAlignment.Center
-            };
+                Cursor = Cursors.WaitCursor;
+                int savedCount = 0;
+                var errors = new List<string>();
 
-            var headerBounds = new Rectangle(
-                e.RowBounds.Left,
-                e.RowBounds.Top,
-                grid.RowHeadersWidth,
-                e.RowBounds.Height);
+                foreach (var row in _inventoryRows.Where(r => r.CheckedQuantity != 0))
+                {
+                    try
+                    {
+                        var dto = new AuditDto
+                        {
+                            ProductId = row.ProductId,
+                            EmployeeId = _employeeId,
+                            CheckedQuantity = row.CheckedQuantity,
+                            InventoryAuditComments = $"Audit difference: {row.Difference}",
+                            AuditDate = DateTime.Now
+                        };
+                        await _auditService.AddAsync(dto);
+                        savedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add($"Product {row.ProductName}: {ex.Message}");
+                    }
+                }
 
-            e.Graphics.DrawString(
-                rowIdx,
-                this.Font,
-                SystemBrushes.ControlText,
-                headerBounds,
-                centerFormat);
+                MessageBox.Show($"Saved {savedCount} of {_inventoryRows.Count} audit records." +
+                                (errors.Any() ? $"\nErrors:\n{string.Join("\n", errors.Take(5))}" : string.Empty),
+                                "Audit Results",
+                                MessageBoxButtons.OK,
+                                savedCount > 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+
+                if (savedCount > 0)
+                {
+                    ShowAuditReport(this, EventArgs.Empty);
+                    await LoadInventoryDataAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving audit: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
 
-        private void LeftSideCollapse_Click(object sender, EventArgs e)
+        private void ShowAuditReport(object sender, EventArgs e)
         {
-            if (isCollapsed)
+            if (_inventoryRows == null || !_inventoryRows.Any())
             {
-                LeftSidePanel.Width = 169;
-                MakeAuditBtn.Text = "Make Audition";
-                MakeReportBtn.Text = "Make Report";
-                ExitFormBtn.Visible = true;
-                isCollapsed = false;
+                MessageBox.Show("No inventory data to report.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var checkedItems = _inventoryRows.Count(r => r.CheckedQuantity != 0);
+            var perfectMatches = _inventoryRows.Count(r => r.Difference == 0 && r.CheckedQuantity != 0);
+            var shortages = _inventoryRows.Count(r => r.Difference < 0 && r.CheckedQuantity != 0);
+            var overages = _inventoryRows.Count(r => r.Difference > 0 && r.CheckedQuantity != 0);
+            var notChecked = _inventoryRows.Count(r => r.CheckedQuantity == 0);
+
+            var totalShortage = _inventoryRows.Where(r => r.Difference < 0).Sum(r => Math.Abs(r.Difference));
+            var totalOverage = _inventoryRows.Where(r => r.Difference > 0).Sum(r => r.Difference);
+
+            string report = $@"Inventory Audit Report
+------------------------
+Total Products: {_inventoryRows.Count}
+Checked Products: {checkedItems}
+Not Checked: {notChecked}
+
+Matches: {perfectMatches}
+Shortages: {shortages} (Total: {totalShortage})
+Overages: {overages} (Total: {totalOverage})
+
+Generated: {DateTime.Now:yyyy-MM-dd HH:mm}";
+
+            MessageBox.Show(report, "Inventory Audit Report", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void FilterProducts(object sender, EventArgs e)
+        {
+            if (_inventoryRows == null) return;
+
+            var searchText = txtSearch.Text.Trim().ToLower();
+            if (string.IsNullOrEmpty(searchText))
+            {
+                AuditsDataGridView.DataSource = _inventoryRows;
+                return;
+            }
+
+            var filtered = _inventoryRows
+                .Where(r => r.ProductName.ToLower().Contains(searchText) ||
+                            r.ProductId.ToString().Contains(searchText))
+                .ToList();
+
+            AuditsDataGridView.DataSource = new BindingList<InventoryRow>(filtered);
+        }
+
+        private void ToggleSidePanel(object sender, EventArgs e)
+        {
+            if (_isSidePanelCollapsed)
+            {
+                panelLeft.Width = 200;
+                btnMakeAudit.Text = "Save Audit";
+                btnMakeReport.Text = "Generate Report";
+                btnExit.Visible = true;
+                _isSidePanelCollapsed = false;
             }
             else
             {
-                LeftSidePanel.Width = 55;
-                MakeAuditBtn.Text = string.Empty;
-                MakeAuditBtn.Text = string.Empty;
-                ExitFormBtn.Visible = false;
-                isCollapsed = true;
+                panelLeft.Width = 60;
+                btnMakeAudit.Text = string.Empty;
+                btnMakeReport.Text = string.Empty;
+                btnExit.Visible = false;
+                _isSidePanelCollapsed = true;
             }
         }
 
-        private void ExitFormBtn_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        // Примитивная модель строки для грида
         private class InventoryRow
         {
             public int ProductId { get; set; }
             public string ProductName { get; set; }
-            public int Expected { get; set; }
-            public int Checked { get; set; }
-            public int Diff { get; set; }
+            public int ExpectedQuantity { get; set; }
+            public int CheckedQuantity { get; set; }
+            public int Difference { get; private set; }
+
+            public void RecalculateDifference()
+            {
+                Difference = CheckedQuantity - ExpectedQuantity;
+            }
         }
     }
 }

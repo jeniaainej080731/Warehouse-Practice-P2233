@@ -160,6 +160,7 @@
             RoleTxt.Font = new Font("Segoe UI", 10.8F);
             RoleTxt.Location = new Point(49, 135);
             RoleTxt.Name = "RoleTxt";
+            RoleTxt.ReadOnly = true;
             RoleTxt.Size = new Size(227, 31);
             RoleTxt.TabIndex = 15;
             // 

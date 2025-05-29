@@ -86,5 +86,11 @@ namespace Warehouse.Data.Repositories
                 PhotoPath = e.PhotoPath
             };
         }
+
+        public async Task<Employee> GetByIdEntityAsync(int id)
+        {
+            return await dbContext.Set<Employee>()
+                                  .FirstOrDefaultAsync(e => e.EmployeeId == id);
+        }
     }
 }

@@ -43,7 +43,13 @@ namespace Warehouse.Data.Repositories
 
         public async Task UpdateAsync(T entity)
         {
-            dbSet.Update(entity);
+            var entry = dbContext.Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                dbSet.Attach(entity);
+            }
+            entry.State = EntityState.Modified;
+
             await dbContext.SaveChangesAsync();
         }
 
